@@ -134,7 +134,6 @@ orders_fact_processing
 | Views for dashboards        |
 +-----------------------------+
 ```
-## **7. Databricks Dashboards – Analytics Layer**
 
 ```
 +--------------------------------+
@@ -146,47 +145,7 @@ orders_fact_processing
 | Order Analytics (Monthly)      |
 +--------------------------------+
 ```
-# 🎯**End-to-End Data Flow**
 
-```mermaid
-flowchart TB
-
-subgraph Bronze
-    B1[S3 Full Load<br/>customers/products/orders]
-    B2[S3 Incremental Load<br/>daily orders]
-    B3[fmcg.bronze.* Delta Tables]
-end
-
-subgraph Silver
-    S1[Cleaned Customers]
-    S2[Cleaned Products]
-    S3[Cleaned Gross Price]
-    S4[Cleaned Orders]
-end
-
-subgraph Gold
-    G1[dim_customers]
-    G2[dim_products]
-    G3[dim_gross_price]
-    G4[sb_fact_orders (daily)]
-    G5[fact_orders (monthly unified)]
-end
-
-B1 --> B3
-B2 --> B3
-
-B3 --> S1
-B3 --> S2
-B3 --> S3
-B3 --> S4
-
-S1 --> G1
-S2 --> G2
-S3 --> G3
-S4 --> G4
-
-G4 --> G5
-```
 
 #**3. Repository Structure**
 
@@ -1221,16 +1180,10 @@ flowchart LR
 +-----------------------------+
 ```
 
-<img width="2978" height="1508" alt="image" src="https://github.com/user-attachments/assets/4106acd5-6ada-4c3f-8f3e-86e774258c63" />
-
-Below is a polished **Analytics & Insights** section you can place at the end of your README.
-It references your dashboard screenshot and clearly explains what the analytics layer delivers.
-
-You can paste this directly into your repository.
-
 ---
 
 # **Analytics & Insights**
+<img width="2978" height="1508" alt="image" src="https://github.com/user-attachments/assets/4106acd5-6ada-4c3f-8f3e-86e774258c63" />
 
 The final layer of the ApexLabs–NutriHouse analytics pipeline is the **Databricks Dashboard**, powered entirely by the unified **Gold-layer dimensions and facts**. This layer provides business stakeholders with real-time, interactive insights across sales, products, customers, and channels.
 
@@ -1241,12 +1194,6 @@ The dashboard is built on top of:
 * `fmcg.gold.dim_customers`
 * `fmcg.gold.dim_gross_price`
 * `fmcg.gold.dim_date`
-
----
-
-# **ApexLabs Sales Insights Dashboard**
-
-![Dashboard](dashboard/fmcg_dashboard.png)
 
 
 ## **1. Global KPI Metrics**
@@ -1315,11 +1262,11 @@ Channels come from the standardized columns defined in the **customer_dim_proces
 
 Because all child-company dimensions and facts flow into the parent Gold layer, the dashboard supports:
 
-### ✔ ApexLabs-only insights
+### ApexLabs-only insights
 
-### ✔ NutriHouse-only insights
+### NutriHouse-only insights
 
-### ✔ Combined analytics for the entire FMCG group
+### Combined analytics for the entire FMCG group
 
 This unlocks business-level decisions such as:
 
@@ -1338,6 +1285,97 @@ This unlocks business-level decisions such as:
 | **Highly Interactive**  | Year, Quarter, Month, Channel filters                         |
 | **Accurate & Governed** | Powered by Delta Lake + Unity Catalog                         |
 | **Scalable**            | Easily extensible for more brands or datasets                 |
+
+Here is a **much shorter, cleaner “How to Run the Pipeline”** section for your README.
+
+---
+
+# **How to Run the Pipeline**
+
+The ApexLabs–NutriHouse pipeline can be executed in two simple ways:
+**(1) Automatically using Databricks Lakeflow Tasks** or
+**(2) Manually by running notebooks in order.**
+
+
+
+##  **1. Automated Run (Recommended)**
+
+The entire pipeline is orchestrated using **Databricks Lakeflow Tasks**:
+
+```
+customer_dim_processing
+      ↓
+products_dim_processing
+      ↓
+prices_dim_processing
+      ↓
+orders_fact_processing
+```
+
+### **Steps**
+
+1. Go to **Databricks → Workflows → Lakeflow Tasks**
+2. Select the pipeline
+3. Click **Run Now**
+4. Lakeflow automatically executes all steps in the correct order.
+
+This handles:
+
+* Raw → Bronze ingestion
+* Silver cleaning
+* Dimension creation
+* Fact table updates
+* Daily → monthly aggregation
+* Merging into unified `fact_orders`
+
+##  **2. Manual Run (Development / Debugging)**
+
+Run notebooks in the following order:
+
+### **Setup (Run Once)**
+
+1. `/setup/catalog_setup.ipynb`
+2. `/setup/utilities.ipynb`
+3. `/setup/dim_date_table_creation.ipynb`
+
+### **Dimensions**
+
+1. `/dimensional_data_processing/customer_data_processing.ipynb`
+2. `/dimensional_data_processing/products_data_processing.ipynb`
+3. `/dimensional_data_processing/pricing_data_processing.ipynb`
+
+### **Facts**
+
+* Full load → `/fact_data_processing/full_load_fact.ipynb`
+* Incremental → `/fact_data_processing/2_incremental_load_fact.ipynb`
+
+---
+
+## 📁 **Output**
+
+Running the pipeline refreshes:
+
+* `fmcg.bronze.*`
+* `fmcg.silver.*`
+* `fmcg.gold.*` (dimensions + unified fact tables)
+
+These feed directly into the **Databricks Sales Insights Dashboard**.
+
+
+---
+
+# **Contact**
+
+For questions, feedback, or collaboration opportunities, feel free to reach out:
+
+**Avirukth Thadaklur**
+💼 **LinkedIn:** [https://www.linkedin.com/in/avirukth-thadaklur-6323722b7/](https://www.linkedin.com/in/avirukth-thadaklur-6323722b7/)
+
+I'm always open to discussing data engineering, analytics, cloud pipelines, and end-to-end project development.
+
+
+
+
 
 
 
