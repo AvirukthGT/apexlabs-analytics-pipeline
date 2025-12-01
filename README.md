@@ -188,6 +188,7 @@ CREATE SCHEMA IF NOT EXISTS fmcg.gold;
 CREATE SCHEMA IF NOT EXISTS fmcg.bronze;
 CREATE SCHEMA IF NOT EXISTS fmcg.silver;
 ```
+<img width="2452" height="1042" alt="image" src="https://github.com/user-attachments/assets/49f3443d-25f2-4434-9f1d-be592493191d" />
 
 ### **What this achieves**
 
