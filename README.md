@@ -39,6 +39,131 @@ The goal of this project is to integrate NutriWarehouse into ApexLabs’ analyti
 
 This enables consolidated insights across the ApexLabs group and supports future acquisitions with a repeatable, scalable analytics foundation.
 
+#**3. Repository Structure**
+
+The project follows a clean medallion-oriented layout, with separate areas for setup, data ingestion, dimensional modeling, fact processing, and dashboards.
+
+```text
+apexlabs-analytics-pipeline/
+│
+├── data/
+│   ├── ApexLabs/
+│   │   ├── Full Load/
+│   │   │   ├── customers/
+│   │   │   ├── gross price/
+│   │   │   ├── orders/
+│   │   │   └── products/
+│   │   └── Incremental Load/
+│   │       └── orders/
+│   │           └── <daily order CSVs for December>
+│   │
+│   ├── NutriHouse/
+│   │   ├── Full Load/
+│   │   │   ├── customers/
+│   │   │   ├── gross price/
+│   │   │   ├── orders/
+│   │   │   └── products/
+│   │   └── Incremental Load/
+│   │       └── orders/
+│   │           └── <daily order CSVs for December>
+│
+├── dimensional_data_processing/
+│   ├── customer_data_processing.ipynb
+│   ├── pricing_data_processing.ipynb
+│   └── products_data_processing.ipynb
+│
+├── fact_data_processing/
+│   ├── full_load_fact.ipynb
+│   └── incremental_load_fact.ipynb
+│
+├── scripts/
+│   ├── denormalise_table_query_fmcg.sql
+│   └── incremental_data_parent_company_query.sql
+│
+├── setup/
+│   ├── catalog_setup.ipynb
+│   ├── dim_date_table_creation.ipynb
+│   └── utilities.ipynb
+│
+├── dashboard/
+│   └── fmcg_dashboard.pdf
+│
+└── README.md
+```
+
+### **`data/`**
+
+Raw data used for Bronze ingestion.
+
+* **ApexLabs** and **NutriHouse** separated.
+* Each has:
+
+  * **Full Load** → customers, products, orders, gross price
+  * **Incremental Load** → daily order extracts for December
+* Enables simulation of real-world batch + incremental streaming ingestion.
+
+
+### **`dimensional_data_processing/`**
+
+Scripts that build **Gold-layer dimensions**:
+
+* `customer_data_processing.ipynb`
+  Clean + conform customer/account data.
+* `pricing_data_processing.ipynb`
+  Standardizes gross price structures and pricing attributes.
+* `products_data_processing.ipynb`
+  Conforms product catalogs from both companies.
+
+These output Gold dimensional tables such as `dim_customer`, `dim_product`, etc.
+
+
+### **`fact_data_processing/`**
+
+Logic for building **fact tables**:
+
+* `full_load_fact.ipynb`
+  Builds fact tables using the complete dataset.
+* `incremental_load_fact.ipynb`
+  Builds fact tables using daily incremental loads for December.
+
+Outputs include fact tables like:
+
+* `fact_gross_price_apexlabs`
+* `fact_gross_price_nutrihouse`
+* Unified fact tables (if unioned in Gold)
+
+
+### **`scripts/`**
+
+Reusable SQL transformation logic:
+
+* `denormalise_table_query_fmcg.sql`
+  Used for flattening / denormalizing Silver data.
+* `incremental_data_parent_company_query.sql`
+  Logic to load incremental orders for ApexLabs.
+
+
+### **`setup/`**
+
+Environment initialization and core dimensions:
+
+* `catalog_setup.ipynb`
+  Creates catalog + medallion schemas (`bronze`, `silver`, `gold`).
+* `dim_date_table_creation.ipynb`
+  Generates the Gold `dim_date` table.
+* `utilities.ipynb`
+  Defines schema constants used across notebooks.
+
+
+### **`dashboard/`**
+
+Visualization outputs and reporting:
+
+* `fmcg_dashboard.pdf`
+  A PDF dashboard built from Gold-layer fact + dimension tables.
+
+---
+
 # **4. Setup**
 
 This section describes all the initialization steps required before running the Bronze, Silver, and Gold data pipelines. The setup executes three main tasks:
